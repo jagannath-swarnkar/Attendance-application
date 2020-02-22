@@ -2,7 +2,7 @@
 This is an attendance application for teacher and students. <br/>
 Teacher can take attendance of students (change the present/absent). but students can't change it they can see only.<br/>
 
-### Full App Demo: <a href="http://3.6.146.241:3010/"> Attendance-application </a>
+### Full App Demo: <a href="http://13.126.28.110:8011/"> Attendance-application </a>
 
 ## code description
 It has three pages- Signup page, login page, and homepage(attendance sheet)<br/>
