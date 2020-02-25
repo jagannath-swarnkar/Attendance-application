@@ -6,13 +6,15 @@ import Axios from "axios";
 import { reactLocalStorage } from "reactjs-localstorage";
 import { studentData } from "../Actions";
 import { useDispatch } from "react-redux";
-import {Redirect} from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 function App() {
   const maindata = useSelector(state => state.StudentData);
   const dispatch = useDispatch();
   const [disabled, setDisabled] = React.useState(true);
+  const [isValidUser, setValidUser] = React.useState(true);
+  const [noData, setNoData] = React.useState(false)
 
   React.useEffect(() => {
     var token = reactLocalStorage.get("token");
@@ -22,9 +24,15 @@ function App() {
       params: { data: token }
     })
       .then(res => {
+        setNoData(res.data.length === 0)
+        if (res.data === "invalidToken") {
+          reactLocalStorage.clear();
+          setValidUser(false);
+        }
         if (res.data.category.trim() === "teacher") {
           setDisabled(false);
         }
+        
         dispatch(studentData("GET_STUDENT_DATA", res.data.students));
       })
       .catch(err => console.error(err));
@@ -35,16 +43,24 @@ function App() {
       attendance: { email: email, status: e.target.value }
     })
       .then(res => {
-        console.log(res.data);
         dispatch(studentData("GET_STUDENT_DATA", res.data));
       })
       .catch(err => console.error(err));
   };
 
-  if(!reactLocalStorage.get('token')){
-    return <Redirect to="/login" />
+  if (!reactLocalStorage.get("token") || !isValidUser) {
+    return <Redirect to="/login" />;
   }
 
+  const noStudent = () => {
+    if (noData) {
+      return (
+        <div style={{textAlign:'center', color:'grey'}}>
+          <h1>No Student is available</h1>
+        </div>
+      );
+    }
+  };
   return (
     <div>
       <Header />
@@ -64,7 +80,7 @@ function App() {
                   disabled={disabled}
                   style={{ width: "170px", color: "red", fontWeight: "bold" }}
                 >
-                  <option value=""></option>
+                  <option value="" />
                   <option value="present">Present</option>
                   <option value="absent">Absent</option>
                 </NativeSelect>
@@ -72,6 +88,7 @@ function App() {
             </Card>
           );
         })}
+        {noStudent()}
       </div>
     </div>
   );

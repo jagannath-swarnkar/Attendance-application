@@ -2,14 +2,14 @@ import React from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import Axios from "axios";
+import { ValidatorForm, TextValidator } from "react-material-ui-form-validator";
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -33,6 +33,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function SignUp() {
   const classes = useStyles();
+  const [isDone, setIsDone] = React.useState(false);
   const [state, setState] = React.useState({
     firstname: "",
     lastname: "",
@@ -41,11 +42,35 @@ export default function SignUp() {
     password: ""
   });
 
+  React.useState(() => {
+    ValidatorForm.addValidationRule("isStrongPass", value => {
+      let s_char = value
+        .split("")
+        .find(el => "!@#$%&|*~".split("").includes(el));
+      if (value.length > 8 && s_char !== undefined) {
+        return true;
+      }
+      return false;
+    });
+    ValidatorForm.addValidationRule("isEmpty", value => {
+      if (value.length > 0) {
+        return true;
+      }
+      return false;
+    });
+    ValidatorForm.addValidationRule("isV", value => {
+      if (["student", "teacher"].includes(value)) {
+        return true;
+      }
+      return false;
+    });
+  }, []);
+
   const formSubmit = e => {
     e.preventDefault();
     Axios.post("http://localhost:8010/signup", { data: state })
       .then(res => {
-        window.alert('Signup successful! :)')
+        window.alert("Signup successful! :) \nClick on OK button to for login");
         setState({
           ...state,
           firstname: "",
@@ -54,9 +79,14 @@ export default function SignUp() {
           email: "",
           password: ""
         });
+        setIsDone(true);
       })
       .catch(err => console.error(err));
   };
+
+  if (isDone) {
+    return <Redirect to="/signin" />;
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -68,10 +98,10 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} onSubmit={formSubmit}>
+        <ValidatorForm className={classes.form} onSubmit={formSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <TextField
+              <TextValidator
                 autoComplete="fname"
                 name="firstName"
                 variant="outlined"
@@ -84,10 +114,12 @@ export default function SignUp() {
                 onChange={e => {
                   setState({ ...state, firstname: e.target.value });
                 }}
+                validators={["isEmpty"]}
+                errorMessages={["Please fill in this field"]}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
+              <TextValidator
                 variant="outlined"
                 required
                 fullWidth
@@ -99,10 +131,12 @@ export default function SignUp() {
                 onChange={e => {
                   setState({ ...state, lastname: e.target.value });
                 }}
+                validators={["isEmpty"]}
+                errorMessages={["Please fill in this field"]}
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
+              <TextValidator
                 variant="outlined"
                 required
                 fullWidth
@@ -110,15 +144,20 @@ export default function SignUp() {
                 label="Teacher / Student"
                 name="category"
                 autoComplete="category"
-                placeholder="Teacher / Student"
+                placeholder="teacher / student"
                 value={state.category}
                 onChange={e => {
                   setState({ ...state, category: e.target.value });
                 }}
+                validators={["isEmpty", "isV"]}
+                errorMessages={[
+                  "Please fill in this field",
+                  "student / teacher"
+                ]}
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
+              <TextValidator
                 variant="outlined"
                 required
                 fullWidth
@@ -130,10 +169,15 @@ export default function SignUp() {
                 onChange={e => {
                   setState({ ...state, email: e.target.value });
                 }}
+                validators={["isEmpty", "isEmail"]}
+                errorMessages={[
+                  "Please fill in this field",
+                  "Email is not valid"
+                ]}
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
+              <TextValidator
                 variant="outlined"
                 required
                 fullWidth
@@ -146,6 +190,11 @@ export default function SignUp() {
                 onChange={e => {
                   setState({ ...state, password: e.target.value });
                 }}
+                validators={["isEmpty", "isStrongPass"]}
+                errorMessages={[
+                  "Please fill in this field",
+                  "min 8 chars & one special character"
+                ]}
               />
             </Grid>
           </Grid>
@@ -165,7 +214,7 @@ export default function SignUp() {
               </Link>
             </Grid>
           </Grid>
-        </form>
+        </ValidatorForm>
       </div>
     </Container>
   );

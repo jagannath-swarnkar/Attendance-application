@@ -19,9 +19,8 @@ module.exports = signin => {
             email: dbdata[0].email
           };
           jwt.sign(
-            data,process.env.SECURITYKEY,{ expiresIn: "1d" },
+            data,process.env.SECURITYKEY,{expiresIn:'1d'},
             (err, token) => {
-              console.log(token)
               res.json([token]);
             }
           );

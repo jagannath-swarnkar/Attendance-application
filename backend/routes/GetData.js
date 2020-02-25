@@ -11,14 +11,18 @@ module.exports = getdata => {
           {
             category: "student"
           },
-          ["username", "email", "category","status"]
+          ["username", "email", "category", "status"]
         );
         userData.then(students => {
           let data = { category: tokenData.category, students: students };
-          console.log("---", students);
-          res.json(data)
+          res.json(data);
         });
-      } else console.log(err);
+        userData.catch(err => {
+          console.log("error in getting data from user table", err);
+        });
+      } else {
+        res.json("invalidToken");
+      }
     });
   });
 };

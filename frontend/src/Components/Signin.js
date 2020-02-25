@@ -2,7 +2,6 @@ import React from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Grid from "@material-ui/core/Grid";
@@ -12,9 +11,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Link, Redirect } from "react-router-dom";
 import Axios from "axios";
-import {reactLocalStorage} from 'reactjs-localstorage';
-
-
+import { reactLocalStorage } from "reactjs-localstorage";
+import { ValidatorForm, TextValidator } from "react-material-ui-form-validator";
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -44,13 +42,22 @@ export default function Signin() {
     login: false
   });
 
+  React.useState(() => {
+    ValidatorForm.addValidationRule("isEmpty", value => {
+      if (value.length > 0) {
+        return true;
+      }
+      return false;
+    });
+  }, []);
+
   const formSubmit = e => {
     e.preventDefault();
     Axios.post("http://localhost:8010/signin", { data: state })
       .then(res => {
-        console.log(res.data)
-        if (res.data.length>0 || res.data) {
-          reactLocalStorage.set('token',res.data[0])
+        console.log(res.data);
+        if (res.data.length > 0 || res.data) {
+          reactLocalStorage.set("token", res.data[0]);
           setState({
             ...state,
             email: "",
@@ -64,7 +71,7 @@ export default function Signin() {
       .catch(err => console.error(err));
   };
 
-  if (state.login || reactLocalStorage.get('token')) {
+  if (state.login || reactLocalStorage.get("token")) {
     return <Redirect to="/home" />;
   }
 
@@ -78,8 +85,8 @@ export default function Signin() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form} onSubmit={formSubmit}>
-          <TextField
+        <ValidatorForm className={classes.form} onSubmit={formSubmit}>
+          <TextValidator
             variant="outlined"
             margin="normal"
             required
@@ -93,8 +100,10 @@ export default function Signin() {
             onChange={e => {
               setState({ ...state, email: e.target.value });
             }}
+            validators={["isEmpty", "isEmail"]}
+            errorMessages={["Please fill in this field", "Email is not valid"]}
           />
-          <TextField
+          <TextValidator
             variant="outlined"
             margin="normal"
             required
@@ -108,6 +117,8 @@ export default function Signin() {
             onChange={e => {
               setState({ ...state, password: e.target.value });
             }}
+            validators={["isEmpty"]}
+            errorMessages={["Please fill in this field"]}
           />
           <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
@@ -134,7 +145,7 @@ export default function Signin() {
               </Link>
             </Grid>
           </Grid>
-        </form>
+        </ValidatorForm>
       </div>
     </Container>
   );

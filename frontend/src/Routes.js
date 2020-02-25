@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import App from './Components/App';
 import Signup from './Components/Signup';
 import Signin from "./Components/Signin";
+import Error from "./Components/Error";
 
 export class Routes extends Component {
   render() {
@@ -15,6 +16,7 @@ export class Routes extends Component {
           <Route path="/signin" exact component={Signin} />
           <Route path="/" exact component={App} />
           <Route path="/home" exact component={App} />
+          <Route component={Error} />
 
         </Switch>
       </Router>

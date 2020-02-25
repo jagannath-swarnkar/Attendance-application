@@ -1,9 +1,8 @@
 import React from "react";
-import { AppBar, Toolbar, Button } from "@material-ui/core";
+import { AppBar, Toolbar } from "@material-ui/core";
 import "./App.css";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { reactLocalStorage } from "reactjs-localstorage";
-import { Redirect } from "react-router-dom";
 
 export default function Header() {
   return (
